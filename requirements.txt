@@ -1,3 +1,2 @@
 daily-python
 pyaudio
-pulsectl

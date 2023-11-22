@@ -39,8 +39,7 @@ class Vapi:
         call_id, web_call_url = create_web_call(
             self.api_url, self.api_key, assistant)
 
-        print('Joining call... ' + web_call_url)
-        print("Call ID: " + call_id)
+        print('Joining call... ' + call_id)
 
         if not web_call_url:
             raise Exception("Error: Unable to create call.")
