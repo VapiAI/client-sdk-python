@@ -18,7 +18,7 @@ First, import the Vapi class from the package:
 from vapi_python import Vapi
 ```
 
-Then, create a new instance of the Vapi class, passing your API Key as a parameter to the constructor:
+Then, create a new instance of the Vapi class, passing your Web Client Key as a parameter to the constructor:
 
 ```python
 vapi = Vapi(api_key='your-api-key')
