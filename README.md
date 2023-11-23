@@ -33,7 +33,7 @@ or
 ```python
 assistant = {
   'firstMessage': 'Hey, how are you?',
-  'context': 'You are a shopping assistant...',
+  'context': 'You are an employee at a drive thru...',
   'model': 'gpt-3.5-turbo',
   'voice': 'jennifer-playht',
   "recordingEnabled": True,
