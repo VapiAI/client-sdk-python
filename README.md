@@ -37,21 +37,7 @@ assistant = {
   'model': 'gpt-3.5-turbo',
   'voice': 'jennifer-playht',
   "recordingEnabled": True,
-  "interruptionsEnabled": False,
-  "functions": [
-    {
-      "name": "setColor",
-      "description": "Used to set the color",
-      "parameters": { 
-          "type": "object",
-          "properties": { 
-              "color": { 
-              "type": "string" 
-              } 
-          }
-      }
-    }
-  ]
+  "interruptionsEnabled": False
 }
 
 vapi.start(assistant=assistant)
