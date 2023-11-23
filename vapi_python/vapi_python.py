@@ -13,14 +13,13 @@ def create_web_call(api_url, api_key, assistant):
         'Content-Type': 'application/json'
     }
     response = requests.post(url, headers=headers, json=assistant)
-
+    data = response.json()
     if response.status_code == 201:
-        data = response.json()
         call_id = data.get('id')
         web_call_url = data.get('webCallUrl')
         return call_id, web_call_url
     else:
-        print(f"Error: {response.status_code}")
+        print(f"Error: {data['message']}")
         return None
 
 

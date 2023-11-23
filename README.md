@@ -24,14 +24,36 @@ Then, create a new instance of the Vapi class, passing your API Key as a paramet
 vapi = Vapi(api_key='your-api-key')
 ```
 
-You can start a new call by calling the `start` method and passing an `assistant` object or `assistantId`:
+You can start a new call by calling the `start` method and passing an `assistant` object or `assistantId`. You can find the available options here: [docs.vapi.ai](https://docs.vapi.ai/api-reference/assistants/create-assistant)
 
 ```python
 vapi.start(assistant_id='your-assistant-id')
 ```
 or
 ```python
-vapi.start(assistant={'context': 'You are a shopping assistant...', 'voice': 'steve', ...})
+assistant = {
+  'firstMessage': 'Hey, how are you?',
+  'context': 'You are a shopping assistant...',
+  'model': 'gpt-3.5-turbo',
+  'voice': 'jennifer-playht',
+  "recordingEnabled": True,
+  "functions": [
+    {
+      "name": "setColor",
+      "description": "Used to set the color",
+      "parameters": { 
+          "type": "object",
+          "properties": { 
+              "color": { 
+              "type": "string" 
+              } 
+          }
+      }
+    }
+  ]
+}
+
+vapi.start(assistant=assistant)
 ```
 
 The `start` method will initiate a new call. 
