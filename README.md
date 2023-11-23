@@ -37,6 +37,7 @@ assistant = {
   'model': 'gpt-3.5-turbo',
   'voice': 'jennifer-playht',
   "recordingEnabled": True,
+  "interruptionsEnabled": False,
   "functions": [
     {
       "name": "setColor",
