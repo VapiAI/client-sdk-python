@@ -1,6 +1,6 @@
 from daily import *
 import requests
-from daily_call import DailyCall
+from .daily_call import DailyCall
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
