@@ -57,7 +57,12 @@ class DailyCall(daily.EventHandler):
             "microphone": {
                 "isEnabled": True,
                 "settings": {
-                    "deviceId": "my-mic"
+                    "deviceId": "my-mic",
+                    "customConstraints": {
+                        "autoGainControl": {"exact": True},
+                        "noiseSuppression": {"exact": True},
+                        "echoCancellation": {"exact": True},
+                    }
                 }
             }
         })
