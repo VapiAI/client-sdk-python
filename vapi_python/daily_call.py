@@ -1,10 +1,11 @@
 import daily
 import threading
 import pyaudio
+import time
 
 SAMPLE_RATE = 16000
 NUM_CHANNELS = 1
-CHUNK_SIZE = 640
+BYTES_PER_SAMPLE = 2
 
 
 def is_playable_speaker(participant):
@@ -17,16 +18,32 @@ def is_playable_speaker(participant):
 
 class DailyCall(daily.EventHandler):
     def __init__(self):
+        self.__app_quit = False
+        self.__start_event = threading.Event()
         daily.Daily.init()
 
         self.__audio_interface = pyaudio.PyAudio()
+
+        self.__mic_device = daily.Daily.create_microphone_device(
+            "my-mic",
+            sample_rate=SAMPLE_RATE,
+            channels=NUM_CHANNELS,            non_blocking=True
+        )
+
+        self.__speaker_device = daily.Daily.create_speaker_device(
+            "my-speaker",
+            sample_rate=SAMPLE_RATE,
+            channels=NUM_CHANNELS,
+            non_blocking=True
+        )
+        daily.Daily.select_speaker_device("my-speaker")
 
         self.__input_audio_stream = self.__audio_interface.open(
             format=pyaudio.paInt16,
             channels=NUM_CHANNELS,
             rate=SAMPLE_RATE,
             input=True,
-            frames_per_buffer=CHUNK_SIZE,
+            stream_callback=self.on_input_stream
         )
 
         self.__output_audio_stream = self.__audio_interface.open(
@@ -34,21 +51,8 @@ class DailyCall(daily.EventHandler):
             channels=NUM_CHANNELS,
             rate=SAMPLE_RATE,
             output=True,
-            frames_per_buffer=CHUNK_SIZE
+            stream_callback=self.on_output_stream
         )
-
-        self.__mic_device = daily.Daily.create_microphone_device(
-            "my-mic",
-            sample_rate=SAMPLE_RATE,
-            channels=NUM_CHANNELS
-        )
-
-        self.__speaker_device = daily.Daily.create_speaker_device(
-            "my-speaker",
-            sample_rate=SAMPLE_RATE,
-            channels=NUM_CHANNELS
-        )
-        daily.Daily.select_speaker_device("my-speaker")
 
         self.__call_client = daily.CallClient(event_handler=self)
 
@@ -82,15 +86,6 @@ class DailyCall(daily.EventHandler):
         self.__app_joined = False
         self.__app_inputs_updated = False
 
-        self.__start_event = threading.Event()
-        self.__receive_bot_audio_thread = threading.Thread(
-            target=self.receive_bot_audio)
-        self.__send_user_audio_thread = threading.Thread(
-            target=self.send_user_audio)
-
-        self.__receive_bot_audio_thread.start()
-        self.__send_user_audio_thread.start()
-
     def on_inputs_updated(self, inputs):
         self.__app_inputs_updated = True
         self.maybe_start()
@@ -118,6 +113,9 @@ class DailyCall(daily.EventHandler):
 
     def join(self, meeting_url):
         self.__call_client.join(meeting_url, completion=self.on_joined)
+        self.maybe_start()
+        while not self.__app_quit:
+            time.sleep(0.1)
 
     def leave(self):
         self.__app_quit = True
@@ -132,31 +130,27 @@ class DailyCall(daily.EventHandler):
         if self.__app_inputs_updated and self.__app_joined:
             self.__start_event.set()
 
-    def send_user_audio(self):
+    def on_input_stream(self, in_data, frame_count, time_info, status):
         self.__start_event.wait()
+        if self.__app_quit:
+            return None, pyaudio.paAbort
 
-        if self.__app_error:
-            print(f"Unable to receive mic audio!")
-            return
+        # If the microphone hasn't started yet `write_frames`this will return
+        # 0. In that case, we just tell PyAudio to continue.
+        self.__mic_device.write_frames(in_data)
 
-        while not self.__app_quit:
-            buffer = self.__input_audio_stream.read(
-                CHUNK_SIZE, exception_on_overflow=False)
-            if len(buffer) > 0:
-                try:
-                    self.__mic_device.write_frames(buffer)
-                except Exception as e:
-                    print(e)
+        return None, pyaudio.paContinue
 
-    def receive_bot_audio(self):
+    def on_output_stream(self, ignore, frame_count, time_info, status):
         self.__start_event.wait()
+        if self.__app_quit:
+            return None, pyaudio.paAbort
 
-        if self.__app_error:
-            print(f"Unable to receive bot audio!")
-            return
+        # If the speaker hasn't started yet `read_frames` will return 0. In that
+        # case, we just create silence and pass it PyAudio and tell it to
+        # continue.
+        buffer = self.__speaker_device.read_frames(frame_count)
+        if len(buffer) == 0:
+            buffer = b'\x00' * frame_count * NUM_CHANNELS * BYTES_PER_SAMPLE
 
-        while not self.__app_quit:
-            buffer = self.__speaker_device.read_frames(CHUNK_SIZE)
-
-            if len(buffer) > 0:
-                self.__output_audio_stream.write(buffer, CHUNK_SIZE)
+        return buffer, pyaudio.paContinue
