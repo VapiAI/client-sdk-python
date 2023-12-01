@@ -19,40 +19,38 @@ def is_playable_speaker(participant):
 class DailyCall(daily.EventHandler):
     def __init__(self):
         self.__app_quit = False
-        self.__start_event = threading.Event()
         daily.Daily.init()
-
-        self.__audio_interface = pyaudio.PyAudio()
 
         self.__mic_device = daily.Daily.create_microphone_device(
             "my-mic",
             sample_rate=SAMPLE_RATE,
-            channels=NUM_CHANNELS,            non_blocking=True
+            channels=NUM_CHANNELS,
+            non_blocking=True
         )
-
         self.__speaker_device = daily.Daily.create_speaker_device(
             "my-speaker",
             sample_rate=SAMPLE_RATE,
             channels=NUM_CHANNELS,
             non_blocking=True
         )
-        daily.Daily.select_speaker_device("my-speaker")
 
-        self.__input_audio_stream = self.__audio_interface.open(
+        self.__pyaudio = pyaudio.PyAudio()
+        self.__input_stream = self.__pyaudio.open(
             format=pyaudio.paInt16,
             channels=NUM_CHANNELS,
             rate=SAMPLE_RATE,
             input=True,
             stream_callback=self.on_input_stream
         )
-
-        self.__output_audio_stream = self.__audio_interface.open(
+        self.__output_stream = self.__pyaudio.open(
             format=pyaudio.paInt16,
             channels=NUM_CHANNELS,
             rate=SAMPLE_RATE,
             output=True,
             stream_callback=self.on_output_stream
         )
+
+        daily.Daily.select_speaker_device("my-speaker")
 
         self.__call_client = daily.CallClient(event_handler=self)
 
@@ -83,21 +81,13 @@ class DailyCall(daily.EventHandler):
 
         self.__app_quit = False
         self.__app_error = None
-        self.__app_joined = False
-        self.__app_inputs_updated = False
-
-    def on_inputs_updated(self, inputs):
-        self.__app_inputs_updated = True
-        self.maybe_start()
 
     def on_joined(self, data, error):
         if error:
             print(f"Unable to join call: {error}")
             self.__app_error = error
         else:
-            self.__app_joined = True
             print("Joined call!")
-        self.maybe_start()
 
     def on_participant_joined(self, participant):
         self.__participants[participant["id"]] = participant
@@ -113,25 +103,14 @@ class DailyCall(daily.EventHandler):
 
     def join(self, meeting_url):
         self.__call_client.join(meeting_url, completion=self.on_joined)
-        self.maybe_start()
-        while not self.__app_quit:
+        while not self.__app_quit and not self.__app_error:
             time.sleep(0.1)
 
     def leave(self):
         self.__app_quit = True
-        self.__receive_bot_audio_thread.join()
-        self.__send_user_audio_thread.join()
         self.__call_client.leave()
 
-    def maybe_start(self):
-        if self.__app_error:
-            self.__start_event.set()
-
-        if self.__app_inputs_updated and self.__app_joined:
-            self.__start_event.set()
-
     def on_input_stream(self, in_data, frame_count, time_info, status):
-        self.__start_event.wait()
         if self.__app_quit:
             return None, pyaudio.paAbort
 
@@ -142,7 +121,6 @@ class DailyCall(daily.EventHandler):
         return None, pyaudio.paContinue
 
     def on_output_stream(self, ignore, frame_count, time_info, status):
-        self.__start_event.wait()
         if self.__app_quit:
             return None, pyaudio.paAbort
 
