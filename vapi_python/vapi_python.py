@@ -19,8 +19,7 @@ def create_web_call(api_url, api_key, assistant):
         web_call_url = data.get('webCallUrl')
         return call_id, web_call_url
     else:
-        print(f"Error: {data['message']}")
-        return None
+        raise Exception(f"Error: {data['message']}")
 
 
 class Vapi:
@@ -38,10 +37,10 @@ class Vapi:
         call_id, web_call_url = create_web_call(
             self.api_url, self.api_key, assistant)
 
-        print('Joining call... ' + call_id)
-
         if not web_call_url:
             raise Exception("Error: Unable to create call.")
+
+        print('Joining call... ' + call_id)
 
         self.__client = DailyCall()
         self.__client.join(web_call_url)
