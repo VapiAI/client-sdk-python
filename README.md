@@ -10,6 +10,8 @@ You can install the package via pip:
 pip install vapi_python
 ```
 
+On Mac, you might need to install `brew install portaudio` to satisfy `pyaudio`'s dependency requirement. 
+
 ## Usage
 
 First, import the Vapi class from the package:
@@ -18,10 +20,10 @@ First, import the Vapi class from the package:
 from vapi_python import Vapi
 ```
 
-Then, create a new instance of the Vapi class, passing your Web Client Key as a parameter to the constructor:
+Then, create a new instance of the Vapi class, passing your Public Key as a parameter to the constructor:
 
 ```python
-vapi = Vapi(api_key='your-api-key')
+vapi = Vapi(api_key='your-public-key')
 ```
 
 You can start a new call by calling the `start` method and passing an `assistant` object or `assistantId`. You can find the available options here: [docs.vapi.ai](https://docs.vapi.ai/api-reference/assistants/create-assistant)
