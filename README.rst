@@ -75,7 +75,25 @@ or
 
    vapi.start(assistant=assistant)
 
-The `start` method will initiate a new call. 
+The `start` method will initiate a new call.
+
+You can also override existing assistant parameters or set variables with the `assistant_overrides` parameter:
+
+.. code-block:: python
+
+   # Assume the below has already been set for the assistant with ID 'your-assistant-id'
+   assistant = {
+      'firstMessage': 'Hey, {{name}} how are you?',
+   }
+
+   assistant_overrides = {
+      "recordingEnabled": False,
+      "variableValues": {
+         "name": "John"
+      }
+   }
+
+   vapi.start(assistant_id='your-assistant-id', assistant_overrides=assistant_overrides)
 
 You can stop the session by calling the `stop` method:
 
