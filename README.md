@@ -10,7 +10,7 @@ You can install the package via pip:
 pip install vapi_python
 ```
 
-On Mac, you might need to install `brew install portaudio` to satisfy `pyaudio`'s dependency requirement. 
+On Mac, you might need to install `brew install portaudio` to satisfy `pyaudio`'s dependency requirement.
 
 ## Usage
 
@@ -31,7 +31,9 @@ You can start a new call by calling the `start` method and passing an `assistant
 ```python
 vapi.start(assistant_id='your-assistant-id')
 ```
+
 or
+
 ```python
 assistant = {
   'firstMessage': 'Hey, how are you?',
@@ -45,16 +47,12 @@ assistant = {
 vapi.start(assistant=assistant)
 ```
 
-The `start` method will initiate a new call. 
+The `start` method will initiate a new call.
 
-You can also override existing assistant parameters or set variables with the `assistant_overrides` parameter:
+You can override existing assistant parameters or set variables with the `assistant_overrides` parameter.
+Assume the first message is `Hey, {{name}} how are you?` and you want to set the value of `name` to `John`:
 
 ```python
-# Assume the below has already been set for the assistant with ID 'your-assistant-id'
-assistant = {
-  'firstMessage': 'Hey, {{name}} how are you?',
-}
-
 assistant_overrides = {
   "recordingEnabled": False,
   "variableValues": {
@@ -98,5 +96,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
-
