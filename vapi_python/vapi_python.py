@@ -27,12 +27,24 @@ class Vapi:
         self.api_key = api_key
         self.api_url = api_url
 
-    def start(self, *, assistant_id=None, assistant=None, assistant_overrides=None):
+    def start(
+        self,
+        *,
+        assistant_id=None,
+        assistant=None,
+        assistants=None,
+        assistant_override=None,
+        assistant_overrides=None,
+    ):
         # Start a new call
         if assistant_id:
-            assistant = {'assistantId': assistant_id, 'assistantOverrides': assistant_overrides}
+            assistant = {'assistantId': assistant_id, 'assistantOverride': assistant_override}
         elif assistant:
-            assistant = {'assistant': assistant, 'assistantOverrides': assistant_overrides}
+            assistant = {'assistant': assistant, 'assistantOverride': assistant_override}
+        elif assistants:
+            assistant = {'assistants': assistants, 'assistantOverride': assistant_overrides, 'assistantOverrides': assistant_overrides}
+        else:
+            raise Exception("Error: No assistant specified.")
 
         call_id, web_call_url = create_web_call(
             self.api_url, self.api_key, assistant)
