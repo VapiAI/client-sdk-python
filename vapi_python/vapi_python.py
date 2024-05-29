@@ -6,13 +6,13 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 
 
-def create_web_call(api_url, api_key, assistant):
+def create_web_call(api_url, api_key, payload):
     url = f"{api_url}/call/web"
     headers = {
         'Authorization': 'Bearer ' + api_key,
         'Content-Type': 'application/json'
     }
-    response = requests.post(url, headers=headers, json=assistant)
+    response = requests.post(url, headers=headers, json=payload)
     data = response.json()
     if response.status_code == 201:
         call_id = data.get('id')
@@ -27,15 +27,29 @@ class Vapi:
         self.api_key = api_key
         self.api_url = api_url
 
-    def start(self, *, assistant_id=None, assistant=None, assistant_overrides=None):
+    def start(
+        self,
+        *,
+        assistant_id=None,
+        assistant=None,
+        assistant_overrides=None,
+        squad_id=None,
+        squad=None,
+    ):
         # Start a new call
         if assistant_id:
-            assistant = {'assistantId': assistant_id, 'assistantOverrides': assistant_overrides}
+            payload = {'assistantId': assistant_id, 'assistantOverrides': assistant_overrides}
         elif assistant:
-            assistant = {'assistant': assistant, 'assistantOverrides': assistant_overrides}
+            payload = {'assistant': assistant, 'assistantOverrides': assistant_overrides}
+        elif squad_id:
+            payload = {'squadId': squad_id}
+        elif squad:
+            payload = {'squad': squad}
+        else:
+            raise Exception("Error: No assistant specified.")
 
         call_id, web_call_url = create_web_call(
-            self.api_url, self.api_key, assistant)
+            self.api_url, self.api_key, payload)
 
         if not web_call_url:
             raise Exception("Error: Unable to create call.")
