@@ -62,3 +62,34 @@ class Vapi:
     def stop(self):
         self.__client.leave()
         self.__client = None
+
+    def send(self, message):
+        """
+        Send a generic message to the assistant.
+
+        :param message: A dictionary containing the message type and content.
+        """
+        if not self.__client:
+            raise Exception("Call not started. Please start the call first.")
+
+        # Check message format here instead of serialization
+        if not isinstance(message, dict) or 'type' not in message:
+            raise ValueError("Invalid message format.")
+
+        try:
+            self.__client.send_app_message(message)  # Send dictionary directly
+        except Exception as e:
+            print(f"Failed to send message: {e}")
+
+    def add_message(self, role, content):
+        """
+        method to send text messages with specific parameters.
+        """
+        message = {
+            'type': 'add-message',
+            'message': {
+                'role': role,
+                'content': content
+            }
+        }
+        self.send(message)
