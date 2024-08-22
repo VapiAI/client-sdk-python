@@ -62,3 +62,21 @@ class Vapi:
     def stop(self):
         self.__client.leave()
         self.__client = None
+
+    def send(self, message_type, message_content):
+        """
+        Send a message to the assistant.
+
+        :param message_type: Type of message, such as 'add-message'.
+        :param message_content: The content of the message.
+        """
+        if not self.__client:
+            raise Exception("Call not started. Please start the call first.")
+
+        message = {
+            "type": message_type,
+            "message": message_content
+        }
+
+        # Simulate sending a message by calling the appropriate method on the client
+        self.__client.send_app_message(message)

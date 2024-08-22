@@ -1,6 +1,7 @@
 import daily
 import threading
 import pyaudio
+import json
 
 SAMPLE_RATE = 16000
 NUM_CHANNELS = 1
@@ -160,3 +161,15 @@ class DailyCall(daily.EventHandler):
 
             if len(buffer) > 0:
                 self.__output_audio_stream.write(buffer, CHUNK_SIZE)
+
+    def send_app_message(self, message):
+        """
+        Send an application message to the assistant.
+
+        :param message: The message to send.
+        """
+        try:
+            serialized_message = json.dumps(message)
+            self.__call_client.send_app_message(serialized_message)
+        except Exception as e:
+            print(f"Failed to send app message: {e}")
