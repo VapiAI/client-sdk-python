@@ -169,9 +169,6 @@ class DailyCall(daily.EventHandler):
         :param message: The message to send (expects a dictionary).
         """
         try:
-            if not isinstance(message, dict):
-                raise ValueError("Message must be a dictionary.")
-
             serialized_message = json.dumps(message)
             self.__call_client.send_app_message(serialized_message)
         except Exception as e:
