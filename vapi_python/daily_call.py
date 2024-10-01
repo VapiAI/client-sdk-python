@@ -22,13 +22,7 @@ class DailyCall(daily.EventHandler):
 
         self.__audio_interface = pyaudio.PyAudio()
 
-        self.__input_audio_stream = self.__audio_interface.open(
-            format=pyaudio.paInt16,
-            channels=NUM_CHANNELS,
-            rate=SAMPLE_RATE,
-            input=True,
-            frames_per_buffer=CHUNK_SIZE,
-        )
+        self.__input_audio_stream = None
 
         self.__output_audio_stream = self.__audio_interface.open(
             format=pyaudio.paInt16,
@@ -140,14 +134,22 @@ class DailyCall(daily.EventHandler):
             print(f"Unable to receive mic audio!")
             return
 
-        while not self.__app_quit:
-            buffer = self.__input_audio_stream.read(
-                CHUNK_SIZE, exception_on_overflow=False)
-            if len(buffer) > 0:
-                try:
-                    self.__mic_device.write_frames(buffer)
-                except Exception as e:
-                    print(e)
+        def callback(in_data, frame_count, time_info, status):
+            if self.__app_quit:
+                return (None, pyaudio.paComplete)
+            self.__mic_device.write_frames(in_data)
+            return (in_data, pyaudio.paContinue)
+
+        # directly stream the sound        
+        self.__input_audio_stream = self.__audio_interface.open(
+            format=pyaudio.paInt16,
+            channels=NUM_CHANNELS,
+            rate=SAMPLE_RATE,
+            input=True,
+            frames_per_buffer=CHUNK_SIZE,
+            stream_callback=callback
+        )
+
 
     def receive_bot_audio(self):
         self.__start_event.wait()
