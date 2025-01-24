@@ -1,3 +1,3 @@
-daily-python
+daily
 pyaudio
 requests
