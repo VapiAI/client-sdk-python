@@ -22,7 +22,7 @@ test_requirements = read_requirements('requirements.txt')
 setup(
     author="Vapi AI",
     author_email='team@vapi.ai',
-    python_requires='>=3.6',
+    python_requires='>=3.9',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
