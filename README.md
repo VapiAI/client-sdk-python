@@ -96,3 +96,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Troubleshooting
+
+If you see `AttributeError: module 'daily' has no attribute 'EventHandler'`, you have the unrelated `daily` package installed. Fix it with:
+
+    pip uninstall -y daily
+    pip install "daily-python>=0.38"
